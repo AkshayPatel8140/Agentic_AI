@@ -1,0 +1,21 @@
+# basic_Chatbot
+langgraph
+langchain
+langsmith
+ipykernel
+python-dotenv
+langchain-groq
+langchain-tavily
+
+langgraph-cli[inmem] # For langgraph Studio
+
+
+# MCP_demo_langchain
+langchain-groq
+langchain-mcp-adapters
+mcp # For fast API calls
+langgraph
+
+
+# Multi AI Agent
+langchain_community
