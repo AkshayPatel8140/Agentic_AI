@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Daily Expense & Income Tracker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-house"></i> Dashboard
+            <small class="text-muted">{{ today | date_format('long') }}</small>
+        </h1>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <!-- Today's Summary -->
+    <div class="col-md-4 mb-3">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar-day"></i> Today
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="text-success">
+                            <i class="bi bi-arrow-up-circle fs-4"></i>
+                            <div class="fw-bold">{{ today_summary.total_income | currency }}</div>
+                            <small class="text-muted">Income</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-danger">
+                            <i class="bi bi-arrow-down-circle fs-4"></i>
+                            <div class="fw-bold">{{ today_summary.total_expenses | currency }}</div>
+                            <small class="text-muted">Expenses</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="{% if today_summary.net_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            <i class="bi bi-{% if today_summary.net_balance >= 0 %}plus{% else %}dash{% endif %}-circle fs-4"></i>
+                            <div class="fw-bold">{{ today_summary.net_balance | currency }}</div>
+                            <small class="text-muted">Net</small>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <small class="text-muted">{{ today_summary.transaction_count }} transactions</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- This Week's Summary -->
+    <div class="col-md-4 mb-3">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar-week"></i> This Week
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="text-success">
+                            <i class="bi bi-arrow-up-circle fs-4"></i>
+                            <div class="fw-bold">{{ week_summary.total_income | currency }}</div>
+                            <small class="text-muted">Income</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-danger">
+                            <i class="bi bi-arrow-down-circle fs-4"></i>
+                            <div class="fw-bold">{{ week_summary.total_expenses | currency }}</div>
+                            <small class="text-muted">Expenses</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="{% if week_summary.net_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            <i class="bi bi-{% if week_summary.net_balance >= 0 %}plus{% else %}dash{% endif %}-circle fs-4"></i>
+                            <div class="fw-bold">{{ week_summary.net_balance | currency }}</div>
+                            <small class="text-muted">Net</small>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <small class="text-muted">{{ week_summary.transaction_count }} transactions</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- This Month's Summary -->
+    <div class="col-md-4 mb-3">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar-month"></i> This Month
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="text-success">
+                            <i class="bi bi-arrow-up-circle fs-4"></i>
+                            <div class="fw-bold">{{ month_summary.total_income | currency }}</div>
+                            <small class="text-muted">Income</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-danger">
+                            <i class="bi bi-arrow-down-circle fs-4"></i>
+                            <div class="fw-bold">{{ month_summary.total_expenses | currency }}</div>
+                            <small class="text-muted">Expenses</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="{% if month_summary.net_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            <i class="bi bi-{% if month_summary.net_balance >= 0 %}plus{% else %}dash{% endif %}-circle fs-4"></i>
+                            <div class="fw-bold">{{ month_summary.net_balance | currency }}</div>
+                            <small class="text-muted">Net</small>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <small class="text-muted">{{ month_summary.transaction_count }} transactions</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Today's Transactions -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar-day"></i> Today's Transactions
+                </h5>
+                <a href="{{ url_for('add_transaction_page') }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus"></i> Add Transaction
+                </a>
+            </div>
+            <div class="card-body">
+                {% if today_transactions %}
+                    <div class="list-group list-group-flush">
+                        {% for transaction in today_transactions %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-{% if transaction.type == 'income' %}arrow-up-circle text-success{% else %}arrow-down-circle text-danger{% endif %} me-2"></i>
+                                        <div>
+                                            <div class="fw-bold">
+                                                {% if transaction.category_name %}
+                                                    {{ transaction.category_name }}
+                                                {% else %}
+                                                    {{ transaction.type.title() }}
+                                                {% endif %}
+                                            </div>
+                                            {% if transaction.description %}
+                                                <small class="text-muted">{{ transaction.description }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold {% if transaction.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                                        {% if transaction.type == 'income' %}+{% else %}-{% endif %}{{ transaction.amount | currency }}
+                                    </div>
+                                    <small class="text-muted">{{ transaction.transaction_date | relative_date }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox display-4 text-muted"></i>
+                        <p class="text-muted mt-2">No transactions for today yet.</p>
+                        <a href="{{ url_for('add_transaction_page') }}" class="btn btn-primary">
+                            <i class="bi bi-plus"></i> Add Your First Transaction
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Top Categories -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('add_transaction_page') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Add Transaction
+                    </a>
+                    <a href="{{ url_for('transactions_page') }}?date=today" class="btn btn-outline-primary">
+                        <i class="bi bi-list"></i> View Today's Transactions
+                    </a>
+                    <a href="{{ url_for('reports_page') }}?type=monthly" class="btn btn-outline-info">
+                        <i class="bi bi-graph-up"></i> Monthly Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Categories This Month -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-tags"></i> Top Categories This Month
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if top_categories %}
+                    {% for category in top_categories %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="fw-bold">{{ category.category_name }}</div>
+                                <small class="text-muted">{{ category.transaction_count }} transactions</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold {% if category.category_type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                                    {{ category.total_amount | currency }}
+                                </div>
+                            </div>
+                        </div>
+                        {% if not loop.last %}<hr class="my-2">{% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="bi bi-tags display-6 text-muted"></i>
+                        <p class="text-muted mt-2 mb-0">No categories data yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+{% if recent_transactions %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history"></i> Recent Transactions
+                </h5>
+                <a href="{{ url_for('transactions_page') }}" class="btn btn-outline-primary btn-sm">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                                <tr>
+                                    <td>
+                                        <div>{{ transaction.transaction_date | date_format('short') }}</div>
+                                        <small class="text-muted">{{ transaction.transaction_date | relative_date }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if transaction.type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                                            <i class="bi bi-{% if transaction.type == 'income' %}arrow-up{% else %}arrow-down{% endif %}"></i>
+                                            {{ transaction.type.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if transaction.category_name %}
+                                            {{ transaction.category_name }}
+                                        {% else %}
+                                            <span class="text-muted">No category</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if transaction.description %}
+                                            {{ transaction.description }}
+                                        {% else %}
+                                            <span class="text-muted">No description</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="fw-bold {% if transaction.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                                            {% if transaction.type == 'income' %}+{% else %}-{% endif %}{{ transaction.amount | currency }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

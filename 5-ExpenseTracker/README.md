@@ -19,13 +19,22 @@ A comprehensive Python application for tracking daily expenses and income with s
 - **Summary Statistics**: Quick overview of financial status
 
 ### User Interface
-- **Interactive Mode**: User-friendly menu-driven interface
+- **Web Interface**: Modern, responsive web application with Bootstrap UI
+- **Interactive Terminal Mode**: User-friendly menu-driven interface
 - **Command Line Interface**: Full CLI support for power users
 - **Data Validation**: Comprehensive input validation and error handling
 
 ## 🚀 Quick Start
 
-### Interactive Mode
+### Web Application (Recommended)
+```bash
+cd 5-ExpenseTracker
+pip install Flask>=2.3.0
+python run_web.py
+```
+Then open your browser to `http://localhost:5000`
+
+### Interactive Terminal Mode
 ```bash
 cd 5-ExpenseTracker
 python main.py
@@ -210,7 +219,9 @@ export EXPENSE_TRACKER_BACKUP_DIR="/path/to/backups"
 ```
 5-ExpenseTracker/
 ├── __init__.py              # Package initialization
-├── main.py                  # Main entry point
+├── main.py                  # Terminal/CLI entry point
+├── run_web.py              # Web application startup script
+├── web_app.py              # Flask web application
 ├── cli.py                   # Command-line interface
 ├── database.py              # Database operations
 ├── models.py                # Data models
@@ -221,6 +232,18 @@ export EXPENSE_TRACKER_BACKUP_DIR="/path/to/backups"
 ├── config.py               # Configuration management
 ├── requirements.txt        # Dependencies
 ├── README.md              # This file
+├── templates/             # HTML templates
+│   ├── base.html
+│   ├── dashboard.html
+│   ├── add_transaction.html
+│   ├── transactions.html
+│   ├── reports.html
+│   └── categories.html
+├── static/               # Static assets
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── app.js
 └── tests/                 # Test files
     ├── test_database.py
     ├── test_transaction_manager.py
@@ -283,4 +306,3 @@ For issues, questions, or feature requests, please create an issue in the reposi
 - Multi-currency support
 - Cloud synchronization
 - Mobile app companion
-

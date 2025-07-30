@@ -1,7 +1,10 @@
 # Daily Expense & Income Tracker Requirements
 
-# Core dependencies (Python standard library modules used)
-# No external dependencies required - uses only built-in Python modules:
+# Core dependencies
+Flask>=2.3.0
+Werkzeug>=2.3.0
+
+# Core Python standard library modules used:
 # - sqlite3 (database)
 # - datetime (date handling)
 # - argparse (CLI)
@@ -41,4 +44,3 @@
 # black>=22.0.0
 # flake8>=5.0.0
 # mypy>=0.991
-

@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Categories - Daily Expense & Income Tracker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <i class="bi bi-tags"></i> Categories
+            </h1>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                <i class="bi bi-plus"></i> Add Category
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Expense Categories -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-arrow-down-circle"></i> Expense Categories
+                    <span class="badge bg-light text-dark ms-2">{{ expense_categories|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if expense_categories %}
+                    <div class="list-group list-group-flush">
+                        {% for category in expense_categories %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center" id="category-{{ category.id }}">
+                                <div>
+                                    <div class="fw-bold">{{ category.name }}</div>
+                                    <small class="text-muted">ID: {{ category.id }}</small>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="deleteCategory({{ category.id }}, '{{ category.name }}')"
+                                            title="Delete Category">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-tags display-4 text-muted"></i>
+                        <p class="text-muted mt-2">No expense categories yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Income Categories -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-arrow-up-circle"></i> Income Categories
+                    <span class="badge bg-light text-dark ms-2">{{ income_categories|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if income_categories %}
+                    <div class="list-group list-group-flush">
+                        {% for category in income_categories %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center" id="category-{{ category.id }}">
+                                <div>
+                                    <div class="fw-bold">{{ category.name }}</div>
+                                    <small class="text-muted">ID: {{ category.id }}</small>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="deleteCategory({{ category.id }}, '{{ category.name }}')"
+                                            title="Delete Category">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-tags display-4 text-muted"></i>
+                        <p class="text-muted mt-2">No income categories yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Usage Statistics -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart"></i> Category Usage Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="categoryUsageChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Type</th>
+                                        <th class="text-end">Usage Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryStatsTable">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">
+                                            <i class="bi bi-hourglass-split"></i> Loading statistics...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle"></i> Add New Category
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCategoryForm">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">
+                            <i class="bi bi-tag"></i> Category Name *
+                        </label>
+                        <input type="text" class="form-control" id="categoryName" name="name" 
+                               placeholder="Enter category name..." required maxlength="50">
+                        <div class="form-text">Maximum 50 characters</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="categoryType" class="form-label">
+                            <i class="bi bi-arrow-left-right"></i> Category Type *
+                        </label>
+                        <select class="form-select" id="categoryType" name="type" required>
+                            <option value="">Select type...</option>
+                            <option value="expense">💸 Expense</option>
+                            <option value="income">💰 Income</option>
+                        </select>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Tip:</strong> Choose descriptive names for your categories to make tracking easier. 
+                        You can always delete unused categories later.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addCategory()">
+                    <i class="bi bi-check"></i> Add Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Delete Category
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the category <strong id="deleteCategoryName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Warning:</strong> This action cannot be undone. However, categories that are being used 
+                    by existing transactions cannot be deleted.
+                </div>
+                <input type="hidden" id="deleteCategoryId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteCategory()">
+                    <i class="bi bi-trash"></i> Delete Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Add category function
+function addCategory() {
+    const form = document.getElementById('addCategoryForm');
+    const formData = new FormData(form);
+    
+    const data = {
+        name: formData.get('name').trim(),
+        type: formData.get('type')
+    };
+    
+    // Validate
+    if (!data.name || !data.type) {
+        showAlert('Please fill in all required fields.', 'danger');
+        return;
+    }
+    
+    if (data.name.length < 2) {
+        showAlert('Category name must be at least 2 characters long.', 'danger');
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = document.querySelector('#addCategoryModal .btn-success');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Adding...';
+    submitBtn.disabled = true;
+    
+    fetch('/api/add_category', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showAlert('Category added successfully!', 'success');
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
+            // Reset form
+            form.reset();
+            // Reload page to show new category
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showAlert(result.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while adding the category.', 'danger');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+// Delete category functions
+function deleteCategory(id, name) {
+    document.getElementById('deleteCategoryId').value = id;
+    document.getElementById('deleteCategoryName').textContent = name;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));
+    modal.show();
+}
+
+function confirmDeleteCategory() {
+    const id = document.getElementById('deleteCategoryId').value;
+    
+    fetch(`/api/delete_category/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showAlert('Category deleted successfully!', 'success');
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('deleteCategoryModal')).hide();
+            // Remove category from DOM
+            const categoryElement = document.getElementById(`category-${id}`);
+            if (categoryElement) {
+                categoryElement.remove();
+            }
+            // Update statistics
+            loadCategoryStatistics();
+        } else {
+            showAlert(result.message, 'warning');
+            // Close modal even if deletion failed
+            bootstrap.Modal.getInstance(document.getElementById('deleteCategoryModal')).hide();
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while deleting the category.', 'danger');
+        console.error('Error:', error);
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('deleteCategoryModal')).hide();
+    });
+}
+
+// Load category usage statistics
+function loadCategoryStatistics() {
+    // This would typically fetch from an API endpoint
+    // For now, we'll show a placeholder
+    const tableBody = document.getElementById('categoryStatsTable');
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="3" class="text-center text-muted">
+                <i class="bi bi-info-circle"></i> Statistics will be available after adding transactions.
+            </td>
+        </tr>
+    `;
+    
+    // Create a simple chart showing category distribution
+    const ctx = document.getElementById('categoryUsageChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Expense Categories', 'Income Categories'],
+            datasets: [{
+                data: [{{ expense_categories|length }}, {{ income_categories|length }}],
+                backgroundColor: ['#dc3545', '#28a745'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const total = {{ expense_categories|length }} + {{ income_categories|length }};
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Utility function to show alerts
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert at the top of the main content
+    const main = document.querySelector('main');
+    main.insertBefore(alertDiv, main.firstChild);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategoryStatistics();
+    
+    // Reset form when modal is hidden
+    document.getElementById('addCategoryModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('addCategoryForm').reset();
+    });
+});
+</script>
+{% endblock %}
+
