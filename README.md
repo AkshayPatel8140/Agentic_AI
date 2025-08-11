@@ -93,7 +93,7 @@
 
 ---
 
-### 5. **MCP Demo Langchain (`mcpDemoLangchain/`)**
+### 5. **MCP Demo Langchain (`5-mcpDemoLangchain/`)**
 
 - **Files:**  
   - `client.py`  
@@ -105,16 +105,30 @@
 - **How to run:**
     1. First run the `weatherServer.py` in separate terminal:
         ```bash
-        cd mcpDemoLangchain
+        cd 5-mcpDemoLangchain
         python weatherServer.py
         ```
     2. Do not close this terminal and open new terminal.
     3. Now in the new terminal run the `client.py` file.
         ```bash
-        cd mcpDemoLangchain
+        cd 5-mcpDemoLangchain
         python client.py
         ```
 
+---
+### 6. **MCP Demo Langchain (`6-KBChatbot/`)**
+
+- **Files:**  
+  - `chatbot.py`  
+- **Description:**  
+  Demonstrates using LangChain with OpenAI and to take details as a knowledge, give the answer based on that KB.
+- **How to run:**
+    1. Run the `chatbot.py` in separate terminal:
+        ```bash
+        cd 6-KBChatbot
+        python chatbot.py
+        ```
+        
 ---
 
 ## Notes

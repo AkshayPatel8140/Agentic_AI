@@ -19,3 +19,9 @@ langgraph
 
 # Multi AI Agent
 langchain_community
+
+
+# KB chatbot using Langchain
+langchain
+langchain_openai
+faiss-cpu
